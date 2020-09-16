@@ -1,3 +1,38 @@
 <resources>
     <string name="app_name">News Service</string>
+    <string name="text_view_author_hint">Title</string>
+    <string name="text_view_author_text">Title</string>
+    <string name="text_view_source_name_hint">Source</string>
+    <string name="text_view_source_name_text">Source:Name</string>
+    <string name="text_view_description_hint">Description</string>
+    <string name="text_view_description_text">Description</string>
+    <string name="text_view_glide_text">Glide</string>
+    <string name="image_view_glide_content_description">Glide Image</string>
+    <string name="text_view_picasso_text">Picasso</string>
+    <string name="image_view_picasso_content_description">Picasso Image</string>
+    <string name="list_item_text_view_author_hint">Author</string>
+    <string name="list_item_text_view_author_text">Author</string>
+    <string name="list_item_text_view_title_hint">Title</string>
+    <string name="list_item_text_view_title_text">Title</string>
+    <string name="list_item_text_view_published_at_hint">Published at</string>
+    <string name="list_item_text_view_published_at_text">Date</string>
+    <string name="anonymous_author">Anonymous</string>
+    <string name="error_alert_dialog_title">Error</string>
+    <string name="error_alert_dialog_message">Request failed</string>
+    <string name="error_alert_dialog_button_text">OK</string>
+    <string name="empty_title">There is no Title</string>
+    <string name="empty_source_name">Unknown source</string>
+    <string name="empty_description">There is no description</string>
+    <string name="empty_url_to_image">no image provided</string>
+    <string name="activity_article_details_text_view_glide_text">Glide: %1$s</string>
+    <string name="activity_article_details_text_view_picasso_text">Picasso: %1$s</string>
+    <string name="text_view_loading_text">Loading</string>
+    <string-array name="news_categories">
+        <item>Software</item>
+        <item>Business</item>
+        <item>Health</item>
+        <item>Home</item>
+        <item>World</item>
+        <item>error</item>
+    </string-array>
 </resources>
