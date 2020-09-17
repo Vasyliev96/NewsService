@@ -1,7 +1,5 @@
 package com.example.android.newsservice.data
 
-import com.example.android.newsservice.data.SourceName
-
 data class NewsItem(
     val source: SourceName,
     val author: String? = null,

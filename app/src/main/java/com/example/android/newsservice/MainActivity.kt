@@ -17,7 +17,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.android.newsservice.api.NewsFetch
 import com.example.android.newsservice.data.NewsItem
 import com.example.android.newsservice.detailview.DetailViewActivity
-import com.example.android.newsservice.detailview.DetailViewActivityViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.article_list_item.*
 import java.util.*
@@ -31,7 +30,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
         ViewModelProvider(this).get(MainActivityViewModel::class.java)
     }
     private lateinit var newsRecyclerView: RecyclerView
-    private lateinit var dialog: Dialog
+    private lateinit var dialogLoading: Dialog
     private var dialogError: Dialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +40,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
         newsRecyclerView.layoutManager = LinearLayoutManager(this)
         mainActivityAdapter = MainActivityAdapter(emptyList(), this)
         newsRecyclerView.adapter = mainActivityAdapter
-        dialog = initLoadingDialog()
+        dialogLoading = initLoadingDialog()
 
         setSpinner()
 
@@ -54,14 +53,33 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
     }
 
     override fun onItemClick(position: Int) {
-        DetailViewActivityViewModel.newsItem = mainActivityAdapter.getItem(position)
+        val newsItem = mainActivityAdapter.getItem(position)
         startActivity(
-            Intent(this, DetailViewActivity::class.java),
-            ActivityOptionsCompat.makeSceneTransitionAnimation(
-                this@MainActivity,
-                textViewAuthor,
-                "author"
-            ).toBundle()
+            Intent(this, DetailViewActivity::class.java).apply {
+                putExtra(
+                    DetailViewActivity.NEWS_ITEM_AUTHOR,
+                    newsItem.author
+                )
+                putExtra(
+                    DetailViewActivity.NEWS_ITEM_SOURCE_NAME,
+                    newsItem.source.name
+                )
+                putExtra(
+                    DetailViewActivity.NEWS_ITEM_DESCRIPTION,
+                    newsItem.description
+                )
+                putExtra(
+                    DetailViewActivity.NEWS_ITEM_URL_TO_IMAGE,
+                    newsItem.urlToImage
+                )
+            },
+            newsRecyclerView.layoutManager?.findViewByPosition(position)?.let {
+                ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    this@MainActivity,
+                    it,
+                    "author"
+                ).toBundle()
+            }
         )
     }
 
@@ -81,7 +99,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
         mainActivityAdapter = MainActivityAdapter(newsItems, this)
         newsRecyclerView.adapter = mainActivityAdapter
 
-        dismissLoadingDialog(dialog)
+        dismissLoadingDialog(dialogLoading)
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -102,7 +120,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
                 }
             }
         }
-        showLoadingDialog(dialog)
+        showLoadingDialog(dialogLoading)
     }
 
     private fun initLoadingDialog(): Dialog {
@@ -138,7 +156,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
 
     override fun onRefresh() {
         swipeRefreshLayoutNews.isRefreshing = false
-        showLoadingDialog(dialog)
+        showLoadingDialog(dialogLoading)
         mainActivityViewModel.calendar.value = Calendar.getInstance().time
     }
 }
