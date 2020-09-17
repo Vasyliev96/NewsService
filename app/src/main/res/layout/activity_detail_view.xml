@@ -29,7 +29,7 @@
                 android:textColor="#000000"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                android:transitionName="author" />
+                android:transitionName="@string/transition_name_author" />
 
             <TextView
                 android:id="@+id/textViewSourceName"

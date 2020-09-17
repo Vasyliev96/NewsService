@@ -18,7 +18,6 @@ import com.example.android.newsservice.api.NewsFetch
 import com.example.android.newsservice.data.NewsItem
 import com.example.android.newsservice.detailview.DetailViewActivity
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.article_list_item.*
 import java.util.*
 
 
@@ -77,7 +76,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
                 ActivityOptionsCompat.makeSceneTransitionAnimation(
                     this@MainActivity,
                     it,
-                    "author"
+                    getString(R.string.transition_name_author)
                 ).toBundle()
             }
         )
@@ -105,7 +104,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         if (parent != null) {
             when (parent.getItemAtPosition(position).toString()) {
-                "error" -> {
+                getString(R.string.spinner_error_category) -> {
                     supportActionBar?.title =
                         parent.getItemAtPosition(position).toString()
                     mainActivityViewModel.category = ""

@@ -18,12 +18,14 @@ class DetailViewActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail_view)
 
-        detailViewActivityViewModel.setNews(
-            intent.getStringExtra(NEWS_ITEM_SOURCE_NAME),
-            intent.getStringExtra(NEWS_ITEM_AUTHOR),
-            intent.getStringExtra(NEWS_ITEM_DESCRIPTION),
-            intent.getStringExtra(NEWS_ITEM_URL_TO_IMAGE)
-        )
+        if (detailViewActivityViewModel.newsItem == null) {
+            detailViewActivityViewModel.setNews(
+                intent.getStringExtra(NEWS_ITEM_SOURCE_NAME),
+                intent.getStringExtra(NEWS_ITEM_AUTHOR),
+                intent.getStringExtra(NEWS_ITEM_DESCRIPTION),
+                intent.getStringExtra(NEWS_ITEM_URL_TO_IMAGE)
+            )
+        }
 
         updateUI()
     }

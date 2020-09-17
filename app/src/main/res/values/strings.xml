@@ -27,6 +27,8 @@
     <string name="activity_article_details_text_view_glide_text">Glide: %1$s</string>
     <string name="activity_article_details_text_view_picasso_text">Picasso: %1$s</string>
     <string name="text_view_loading_text">Loading</string>
+    <string name="transition_name_author">author</string>
+    <string name="spinner_error_category">error</string>
     <string-array name="news_categories">
         <item>Software</item>
         <item>Business</item>
