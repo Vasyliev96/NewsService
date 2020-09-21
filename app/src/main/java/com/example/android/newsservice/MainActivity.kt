@@ -8,29 +8,23 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityOptionsCompat
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.example.android.newsservice.api.NewsFetch
-import com.example.android.newsservice.data.NewsItem
 import com.example.android.newsservice.detailview.DetailViewActivity
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.*
+import moxy.MvpAppCompatActivity
+import moxy.ktx.moxyPresenter
 
-
-class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
+class MainActivity : MvpAppCompatActivity(), AdapterView.OnItemSelectedListener,
     MainActivityAdapter.CallbackItemClickListener, DialogInterface.OnClickListener,
-    SwipeRefreshLayout.OnRefreshListener {
+    SwipeRefreshLayout.OnRefreshListener, MainView {
     private lateinit var mainActivityAdapter: MainActivityAdapter
-    private val mainActivityViewModel: MainActivityViewModel by lazy {
-        ViewModelProvider(this).get(MainActivityViewModel::class.java)
-    }
+    private val mainPresenter by moxyPresenter { MainPresenter() }
     private lateinit var newsRecyclerView: RecyclerView
     private lateinit var dialogLoading: Dialog
-    private var dialogError: Dialog? = null
+    private lateinit var dialogError: Dialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,16 +32,8 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
         newsRecyclerView = findViewById(R.id.recyclerViewNewsList)
         newsRecyclerView.layoutManager = LinearLayoutManager(this)
         mainActivityAdapter = MainActivityAdapter(emptyList(), this)
-        newsRecyclerView.adapter = mainActivityAdapter
         dialogLoading = initLoadingDialog()
-
-        setSpinner()
-
-        mainActivityViewModel.newsItemLiveData.observe(
-            this,
-            { news ->
-                updateUI(news)
-            })
+        dialogError = initErrorDialog()
         swipeRefreshLayoutNews.setOnRefreshListener(this)
     }
 
@@ -82,7 +68,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
         )
     }
 
-    private fun setSpinner() {
+    override fun setSpinner() {
         spinnerCategories.onItemSelectedListener = this
         ArrayAdapter(
             this,
@@ -94,32 +80,47 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
         }
     }
 
-    private fun updateUI(newsItems: List<NewsItem>) {
-        mainActivityAdapter = MainActivityAdapter(newsItems, this)
+    override fun updateUI() {
+        mainActivityAdapter.news = mainPresenter.newsItems
         newsRecyclerView.adapter = mainActivityAdapter
+    }
 
-        dismissLoadingDialog(dialogLoading)
+    override fun setTitle() {
+        supportActionBar?.title = mainPresenter.category
+    }
+
+    override fun showLoadingDialog() {
+        dialogLoading.show()
+    }
+
+    override fun dismissLoadingDialog() {
+        dialogLoading.dismiss()
+    }
+
+    override fun showErrorDialog() {
+        dialogError.show()
+    }
+
+    override fun dismissErrorDialog() {
+        dialogError.dismiss()
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         if (parent != null) {
-            when (parent.getItemAtPosition(position).toString()) {
-                getString(R.string.spinner_error_category) -> {
-                    supportActionBar?.title =
-                        parent.getItemAtPosition(position).toString()
-                    mainActivityViewModel.category = ""
-                    mainActivityViewModel.calendar.value = Calendar.getInstance().time
-                }
-                else -> {
-                    supportActionBar?.title =
-                        parent.getItemAtPosition(position).toString()
-                    mainActivityViewModel.category = parent.getItemAtPosition(position).toString()
-                        .toLowerCase(Locale.getDefault())
-                    mainActivityViewModel.calendar.value = Calendar.getInstance().time
-                }
-            }
+            mainPresenter.updateUI(parent.getItemAtPosition(position).toString())
         }
-        showLoadingDialog(dialogLoading)
+    }
+
+    override fun onClick(dialog: DialogInterface?, which: Int) {
+        mainPresenter.dismissErrorDialog()
+    }
+
+    override fun onRefresh() {
+        swipeRefreshLayoutNews.isRefreshing = false
+        mainPresenter.updateUI(mainPresenter.category)
+    }
+
+    override fun onNothingSelected(parent: AdapterView<*>?) {
     }
 
     private fun initLoadingDialog(): Dialog {
@@ -129,33 +130,11 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener,
         return builder.create()
     }
 
-    private fun showLoadingDialog(dialog: Dialog) {
-        dialog.show()
-    }
-
-    private fun dismissLoadingDialog(dialog: Dialog) {
-        dialog.dismiss()
-        if (!NewsFetch.isResponseCorrect && dialogError == null) {
-            val builder = AlertDialog.Builder(this)
-            builder.setTitle(getString(R.string.error_alert_dialog_title))
-            builder.setMessage(getString(R.string.error_alert_dialog_message))
-            builder.setPositiveButton(getString(R.string.error_alert_dialog_button_text), this)
-            dialogError = builder.create()
-            dialogError?.show()
-        }
-    }
-
-    override fun onNothingSelected(parent: AdapterView<*>?) {
-    }
-
-    override fun onClick(dialog: DialogInterface?, which: Int) {
-        dialogError = null
-        dialog?.dismiss()
-    }
-
-    override fun onRefresh() {
-        swipeRefreshLayoutNews.isRefreshing = false
-        showLoadingDialog(dialogLoading)
-        mainActivityViewModel.calendar.value = Calendar.getInstance().time
+    private fun initErrorDialog(): Dialog {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(getString(R.string.error_alert_dialog_title))
+        builder.setMessage(getString(R.string.error_alert_dialog_message))
+        builder.setPositiveButton(getString(R.string.error_alert_dialog_button_text), this)
+        return builder.create()
     }
 }

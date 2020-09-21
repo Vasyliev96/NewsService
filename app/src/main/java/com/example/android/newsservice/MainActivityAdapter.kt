@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.android.newsservice.data.NewsItem
 import kotlinx.android.synthetic.main.article_list_item.view.*
 
-class MainActivityAdapter(private val news: List<NewsItem>, private val context: Context) :
+class MainActivityAdapter(var news: List<NewsItem>, private val context: Context) :
     RecyclerView.Adapter<MainActivityAdapter.NewsItemViewHolder>() {
 
     private val inflater: LayoutInflater = LayoutInflater.from(this.context)

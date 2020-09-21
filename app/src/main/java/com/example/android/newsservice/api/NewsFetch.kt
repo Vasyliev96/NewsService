@@ -1,7 +1,6 @@
 package com.example.android.newsservice.api
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import com.example.android.newsservice.MainPresenter
 import com.example.android.newsservice.data.NewsItem
 import retrofit2.Call
 import retrofit2.Callback
@@ -10,7 +9,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object NewsFetch {
-    var isResponseCorrect = false
     private val newsApi: NewsApi
 
     init {
@@ -21,25 +19,30 @@ object NewsFetch {
         newsApi = retrofit.create(NewsApi::class.java)
     }
 
-    fun fetchNews(query: String, date: String): LiveData<List<NewsItem>> {
-        val responseLiveData: MutableLiveData<List<NewsItem>> = MutableLiveData()
+    fun fetchNews(
+        query: String,
+        date: String,
+        presenter: MainPresenter
+    ){
         val newsApiRequest: Call<NewsResponse> = newsApi.fetchNews(query, date)
         newsApiRequest.enqueue(object : Callback<NewsResponse> {
             override fun onFailure(call: Call<NewsResponse>, t: Throwable) {
-                isResponseCorrect = false
-                responseLiveData.value = mutableListOf()
+                presenter.requestFailed()
+
             }
 
             override fun onResponse(
                 call: Call<NewsResponse>,
                 response: Response<NewsResponse>
             ) {
-                isResponseCorrect = response.body() != null
-                val newsResponse: NewsResponse? = response.body()
-                val newsItems: List<NewsItem> = newsResponse?.newsItems ?: mutableListOf()
-                responseLiveData.value = newsItems
+                if (response.body() != null) {
+                    val newsResponse: NewsResponse? = response.body()
+                    val newsItems: List<NewsItem> = newsResponse?.newsItems ?: mutableListOf()
+                    presenter.setNews(newsItems)
+                } else {
+                    presenter.requestFailed()
+                }
             }
         })
-        return responseLiveData
     }
 }

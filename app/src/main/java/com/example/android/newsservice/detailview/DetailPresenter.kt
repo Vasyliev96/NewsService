@@ -1,11 +1,15 @@
 package com.example.android.newsservice.detailview
 
-import androidx.lifecycle.ViewModel
 import com.example.android.newsservice.data.NewsItem
 import com.example.android.newsservice.data.SourceName
+import moxy.MvpPresenter
 
-class DetailViewActivityViewModel : ViewModel() {
+class DetailPresenter : MvpPresenter<DetailView>() {
     var newsItem: NewsItem? = null
+    override fun onFirstViewAttach() {
+        super.onFirstViewAttach()
+        viewState.updateUI()
+    }
 
     fun setNews(sourceName: String?, author: String?, description: String?, urlToImage: String?) {
         newsItem =
